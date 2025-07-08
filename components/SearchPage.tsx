@@ -94,6 +94,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ songs, onSongPlay, formatNumber
                     onPlay={onSongPlay} 
                     formatNumber={formatNumber}
                     onAddToPlaylist={onAddToPlaylist}
+                    cachedImageUrl="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Music_Icon.svg/1024px-Music_Icon.svg.png"
                   />
                 ))}
               </div>
