@@ -63,7 +63,7 @@ const LikedSongsPage: React.FC<LikedSongsPageProps> = ({ songs, onBack, onSongPl
         {songs.length > 0 ? (
           <div className="space-y-3">
             {songs.map((song) => (
-              <SongCard key={song.id} song={song} onPlay={onSongPlay} formatNumber={formatNumber} />
+              <SongCard key={song.id} song={song} onPlay={onSongPlay} formatNumber={formatNumber} cachedImageUrl="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Music_Icon.svg/1024px-Music_Icon.svg.png"/>
             ))}
           </div>
         ) : (
