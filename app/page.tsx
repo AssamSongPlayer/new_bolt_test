@@ -47,6 +47,35 @@ function MusicPlayerContent() {
   const [hasSetLastPlayedSong, setHasSetLastPlayedSong] = useState(false);
   const [lastPlayedSongDismissed, setLastPlayedSongDismissed] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
+  const [displayCount, setDisplayCount] = useState(15);
+const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
+const loadMoreSongs = () => {
+  setDisplayCount(prev => prev + 15);
+};
+
+const displayedSongs = songs.slice(0, displayCount);
+
+// Load images for currently displayed songs
+useEffect(() => {
+  const fetchImages = async () => {
+    const newUrls: Record<string, string> = {};
+
+    const songsToLoad = songs.slice(0, displayCount);
+    for (const song of songsToLoad) {
+      if (!imageUrls[song.id]) {
+        newUrls[song.id] = `/api/image-proxy?fileid=${song.img_id}`;
+      }
+    }
+
+    if (Object.keys(newUrls).length > 0) {
+      setImageUrls(prev => ({ ...prev, ...newUrls }));
+    }
+  };
+
+  fetchImages();
+}, [displayCount, songs]);
+
 
   // Set last played song as current song when data loads (only once and if not dismissed)
   useEffect(() => {
@@ -161,13 +190,29 @@ function MusicPlayerContent() {
 
     switch (activeTab) {
       case 'home':
-        return <HomePage songs={songs} onSongPlay={handleSongPlay} formatNumber={formatNumber} onAddToPlaylist={handleAddToPlaylist} />;
+        return <HomePage
+                songs={displayedSongs}
+                onSongPlay={handleSongPlay}
+                formatNumber={formatNumber}
+                onAddToPlaylist={handleAddToPlaylist}
+                imageUrls={imageUrls}
+                onLoadMore={loadMoreSongs}
+                hasMoreSongs={displayCount < songs.length}
+              />;
       case 'search':
         return <SearchPage songs={songs} onSongPlay={handleSongPlay} formatNumber={formatNumber} onAddToPlaylist={handleAddToPlaylist} />;
       case 'settings':
         return <SettingsPage onPlaylistsClick={() => setCurrentPage('playlists')} onLikedClick={() => setCurrentPage('liked')} />;
       default:
-        return <HomePage songs={songs} onSongPlay={handleSongPlay} formatNumber={formatNumber} onAddToPlaylist={handleAddToPlaylist} />;
+        return <HomePage
+              songs={displayedSongs}
+              onSongPlay={handleSongPlay}
+              formatNumber={formatNumber}
+              onAddToPlaylist={handleAddToPlaylist}
+              imageUrls={imageUrls}
+              onLoadMore={loadMoreSongs}
+              hasMoreSongs={displayCount < songs.length}
+            />;
     }
   };
 

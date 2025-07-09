@@ -13,39 +13,17 @@ interface HomePageProps {
   onSongPlay: (song: Song) => void;
   formatNumber: (num: number) => string;
   onAddToPlaylist: (song: Song) => void;
+  imageUrls: Record<string, string>;  // NEW
+  onLoadMore: () => void;             // NEW
+  hasMoreSongs: boolean;              // NEW
 }
 
-const HomePage: React.FC<HomePageProps> = ({ songs, onSongPlay, formatNumber, onAddToPlaylist }) => {
+
+const HomePage: React.FC<HomePageProps> = ({ songs, onSongPlay, formatNumber, onAddToPlaylist,imageUrls,onLoadMore,hasMoreSongs }) => {
   const { isDarkMode } = useTheme();
   const { user } = useAuth();
-  const [displayCount, setDisplayCount] = useState(15);
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   
-  const loadMore = () => {
-    setDisplayCount(prev => prev + 10);
-  };
 
-  const displayedSongs = songs.slice(0, displayCount);
-  const hasMoreSongs = displayCount < songs.length;
-useEffect(() => {
-  const fetchImages = async () => {
-    const newUrls: Record<string, string> = {};
-
-    const songsToLoad = songs.slice(0, displayCount);
-
-    for (const song of songsToLoad) {
-      if (!imageUrls[song.id]) {
-        newUrls[song.id] = `/api/image-proxy?fileid=${song.img_id}`; // proxying
-      }
-    }
-
-    if (Object.keys(newUrls).length > 0) {
-      setImageUrls(prev => ({ ...prev, ...newUrls }));
-    }
-  };
-
-  fetchImages();
-}, [displayCount, songs]);
 
 
   return (
@@ -104,8 +82,8 @@ useEffect(() => {
             <button className="text-purple-400 text-sm font-medium">See all</button>
           </div>
           <div className="space-y-3">
-            {displayedSongs.map((song) => (
-              <SongCard 
+            {songs.map((song) => (
+              <SongCard
                 key={song.id}
                 song={{ ...song, image: imageUrls[song.id] || '' }}
                 onPlay={onSongPlay}
@@ -113,22 +91,24 @@ useEffect(() => {
                 onAddToPlaylist={onAddToPlaylist}
                 cachedImageUrl={imageUrls[song.id]}
               />
-
             ))}
           </div>
           
           {/* Load More Button */}
           {hasMoreSongs && (
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={loadMore}
-                className={`flex items-center space-x-2 px-6 py-3 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 border-gray-700' : 'bg-white hover:bg-gray-50 border-gray-200'} border rounded-full transition-colors`}
-              >
-                <Plus size={18} className="text-purple-400" />
-                <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Load More</span>
-              </button>
-            </div>
-          )}
+  <div className="flex justify-center mt-6">
+    <button
+      onClick={onLoadMore}
+      className={`flex items-center space-x-2 px-6 py-3 ${
+        isDarkMode ? 'bg-gray-800 hover:bg-gray-700 border-gray-700' : 'bg-white hover:bg-gray-50 border-gray-200'
+      } border rounded-full transition-colors`}
+    >
+      <Plus size={18} className="text-purple-400" />
+      <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Load More</span>
+    </button>
+  </div>
+)}
+
         </div>
       </div>
     </div>
